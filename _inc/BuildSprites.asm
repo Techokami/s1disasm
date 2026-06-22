@@ -1,3 +1,14 @@
+; Flags used by obRender.
+; bit 0				horizontally mirrors the sprite
+; bit 1				vertically mirrors the sprite
+; bits 2-3			position sprite using either screen or level coordinates
+; bit 4				use obHeight to determine vertical culling radius, rather than assuming 32 pixels
+; bit 5				objects that point directly to sprite data, rather than a list of sprites
+; bit 6				only used by Sonic to visually layer him behind loops
+; bit 7				sprite is visible and rendered on the previous frame (NOTE: in
+;				Sonic 1, this is required for objects to process collision using
+;				ReactToItem!)
+
 ; ===========================================================================
 ; BuildSprites camera pointers to be used depending on bits 2-3 in obRender.
 
