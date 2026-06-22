@@ -578,7 +578,7 @@ Sonic_WallSpeedAdjust:
 	if FixBugs
 		; Knuckles in Sonic 2 changed this code, likely to patch a bug
 		; where if the player slides into a wall while trying to move
-		; in the opposite direction, you'd enter the walking animation
+		; in the opposite direction, you'd enter the pushing animation
 		; while moving away.
 		move.w	#0,obInertia(a0)			; clear ground speed
 		btst	#0,obStatus(a0)				; is Sonic facing the wall?
