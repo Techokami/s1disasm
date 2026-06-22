@@ -32,7 +32,7 @@ GMake_Main:	; Routine 0
 		addq.b	#2,obRoutine(a0)			; advance to GMake_Wait
 		move.l	#Map_Geyser,obMap(a0)			; set mappings
 		move.w	#ArtTile_MZ_Lava|Tile_Pal4|Tile_Prio,obGfx(a0) ; set art tile, palette line (lava palcycle), and priority flag
-		move.b	#4,obRender(a0)				; set to playfield-positioned mode
+		move.b	#1<<sprite_cam_field,obRender(a0)	; set to playfield-positioned mode
 		move.b	#1,obPriority(a0)			; set sprite priority (above Sonic)
 		move.b	#112/2,obActWid(a0)			; set sprite display width
 		move.w	#120,gmake_time(a0)			; set time delay between spawning lava to 2 seconds
@@ -180,7 +180,7 @@ Geyser_Main:	; Routine 0
 		_move.b	#id_LavaGeyser,obID(a1)			; load another lava object
 		move.l	#Map_Geyser,obMap(a1)			; set mappings
 		move.w	#ArtTile_MZ_Lava|Tile_Pal4,obGfx(a1)	; set art tile and palette line (palcycle)
-		move.b	#4,obRender(a1)				; set to playfield-positioned mode
+		move.b	#1<<sprite_cam_field,obRender(a1)	; set to playfield-positioned mode
 	if FixBugs=0
 		; This is inconsistent with GeyserMaker, causing it to vanish
 		; while still partially on-screen.
@@ -211,7 +211,7 @@ Geyser_Main:	; Routine 0
 		addi.w	#$60,geyser_origY(a1)			; move original Y-position down
 		move.b	#col_64x224|col_hurt,obColType(a1)	; set collision type for lava wall
 		move.b	#256/2,obHeight(a1)			; set object height
-		bset	#4,obRender(a1)				; set custom display sprite height flag
+		bset	#sprite_customheight,obRender(a1)	; set custom display sprite height flag
 		addq.b	#4,obRoutine(a1)			; set to Geyser_BigLavaWall
 		move.l	a0,gmake_parent(a1)			; remember bubbling (top) tip for lava wall
 

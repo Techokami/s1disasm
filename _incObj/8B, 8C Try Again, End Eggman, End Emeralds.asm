@@ -24,7 +24,7 @@ EEgg_Main:	; Routine 0
 		move.w	#$80+$74,obScreenY(a0)			; set Y-position
 		move.l	#Map_EEgg,obMap(a0)			; set mappings
 		move.w	#ArtTile_Try_Again_Eggman,obGfx(a0)	; set art tile
-		move.b	#0,obRender(a0)				; set to screen-positioned mode
+		move.b	#sprite_cam_screen,obRender(a0)		; set to screen-positioned mode
 		move.b	#2,obPriority(a0)			; set sprite priority (behind emeralds)
 
 		move.b	#2,obAnim(a0)				; use "END" tantrum animation by default (good ending)
@@ -112,7 +112,7 @@ TCha_LoadEmeralds: ; Routine 0
 		addq.b	#2,obRoutine(a1)			; advance to TCha_Move
 		move.l	#Map_ECha,obMap(a1)			; set mappings (same ones used in ending sequence)
 		move.w	#ArtTile_Try_Again_Emeralds,obGfx(a1)	; set art tile
-		move.b	#0,obRender(a1)				; set to screen-positioned mode
+		move.b	#sprite_cam_screen,obRender(a1)		; set to screen-positioned mode
 		move.b	#1,obPriority(a1)			; set sprite priority (above Eggman)
 		move.w	#$80+$84,obX(a1)			; start X-position
 		move.w	#$80+$A0,tcha_origX(a1)			; X-position for radius anchor point

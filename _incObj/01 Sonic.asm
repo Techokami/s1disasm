@@ -39,7 +39,7 @@ Sonic_Main:	; Routine 0
 		move.w	#ArtTile_Sonic,obGfx(a0)		; set VRAM location
 		move.b	#2,obPriority(a0)			; set sprite priority
 		move.b	#48/2,obActWid(a0)			; set render width
-		move.b	#4,obRender(a0)				; set to playfield-positioned mode
+		move.b	#1<<sprite_cam_field,obRender(a0)	; set to playfield-positioned mode
 		move.w	#son_maxspeed,(v_sonspeedmax).w		; set Sonic's top speed
 		move.w	#son_acceleration,(v_sonspeedacc).w	; set Sonic's acceleration
 		move.w	#son_deceleration,(v_sonspeeddec).w	; set Sonic's deceleration
@@ -2078,7 +2078,7 @@ Sonic_Loops:
 		cmp.b	(v_256loop2).w,d1			; is Sonic on a loop tile? (type B, entering from/exiting to the right)
 		beq.s	.chkifinair				; if yes, branch
 
-		bclr	#6,obRender(a0)				; clear loop flag (return Sonic to high plane)
+		bclr	#sprite_looping,obRender(a0)		; clear loop flag (return Sonic to high plane)
 		rts
 ; ===========================================================================
 
@@ -2087,7 +2087,7 @@ Sonic_Loops:
 		btst	#1,obStatus(a0)				; is Sonic in the air?
 		beq.s	.chkifleft				; if not, branch
 
-		bclr	#6,obRender(a0)				; clear loop flag (return Sonic to high plane)
+		bclr	#sprite_looping,obRender(a0)		; clear loop flag (return Sonic to high plane)
 		rts
 ; ===========================================================================
 
@@ -2097,7 +2097,7 @@ Sonic_Loops:
 		cmpi.b	#44,d2					; is Sonic past the first couple pixels of the loop? (byte check)
 		bhs.s	.chkifright				; if yes, branch
 
-		bclr	#6,obRender(a0)				; clear loop flag (return Sonic to high plane)
+		bclr	#sprite_looping,obRender(a0)		; clear loop flag (return Sonic to high plane)
 		rts						; return
 ; ===========================================================================
 
@@ -2106,20 +2106,20 @@ Sonic_Loops:
 		cmpi.b	#224,d2					; is Sonic past the last couple pixels of the loop? (byte check)
 		blo.s	.chkangle1				; if not, branch
 
-		bset	#6,obRender(a0)				; set loop flag (send Sonic to low plane)
+		bset	#sprite_looping,obRender(a0)		; set loop flag (send Sonic to low plane)
 		rts						; return
 ; ===========================================================================
 
 ; loc_13996:
 .chkangle1:
-		btst	#6,obRender(a0) 			; is loop flag already set?
+		btst	#sprite_looping,obRender(a0) 		; is loop flag already set?
 		bne.s	.chkangle2				; if yes, branch
 
 		move.b	obAngle(a0),d1				; get Sonic's current angle
 		beq.s	.return					; if Sonic is on the flat surface of the loop, branch
 		cmpi.b	#$80,d1					; has Sonic crossed the apex of the loop (i.e. is he upside-down)?
 		bhi.s	.return					; if yes, branch
-		bset	#6,obRender(a0)				; set loop flag (send Sonic to low plane)
+		bset	#sprite_looping,obRender(a0)		; set loop flag (send Sonic to low plane)
 		rts						; return
 ; ===========================================================================
 
@@ -2128,7 +2128,7 @@ Sonic_Loops:
 		move.b	obAngle(a0),d1				; get Sonic's current angle
 		cmpi.b	#$80,d1					; has Sonic crossed the apex of the loop (i.e. is he upside-down)?
 		bls.s	.return					; if not, branch
-		bclr	#6,obRender(a0)				; clear loop flag (return Sonic to high plane)
+		bclr	#sprite_looping,obRender(a0)		; clear loop flag (return Sonic to high plane)
 
 ; locret_139C2:
 .return:
@@ -2164,7 +2164,7 @@ Sonic_Animate:
 
 		move.b	obStatus(a0),d1				; get Sonic's status bitfield
 		andi.b	#1,d1					; mask out everything but the X-flip flag
-		andi.b	#$FC,obRender(a0)			; clear X-flip and Y-flip flags in Sonic's render flags
+		andi.b	#$FF-(1<<sprite_xflip|1<<sprite_yflip),obRender(a0)			; clear X-flip and Y-flip flags in Sonic's render flags
 		or.b	d1,obRender(a0)				; set new X-flip flag state
 
 		subq.b	#1,obTimeFrame(a0)			; subtract 1 from frame duration
@@ -2244,7 +2244,7 @@ Sonic_Animate:
 		moveq	#3,d1					; invert both flip flags
 ; loc_13A78:
 .noinvert:
-		andi.b	#$FC,obRender(a0)			; clear current flip flags
+		andi.b	#$FF-(1<<sprite_xflip|1<<sprite_yflip),obRender(a0)			; clear current flip flags
 		eor.b	d1,d2					; invert flip flags depending on current angle
 		or.b	d2,obRender(a0)				; set new flip flags
 
@@ -2315,7 +2315,7 @@ Sonic_Animate:
 
 		move.b	obStatus(a0),d1				; get Sonic's current status flags
 		andi.b	#1,d1					; mask out everything but the X-flip flag
-		andi.b	#$FC,obRender(a0)			; clear Sonic's current flip flags
+		andi.b	#$FF-(1<<sprite_xflip|1<<sprite_yflip),obRender(a0)			; clear Sonic's current flip flags
 		or.b	d1,obRender(a0)				; set new X-flip flag
 		bra.w	.loadframe				; update current frame
 ; ===========================================================================
@@ -2341,7 +2341,7 @@ Sonic_Animate:
 
 		move.b	obStatus(a0),d1				; get Sonic's current status flags
 		andi.b	#1,d1					; mask out everything but the X-flip flag
-		andi.b	#$FC,obRender(a0)			; clear Sonic's current flip flags
+		andi.b	#$FF-(1<<sprite_xflip|1<<sprite_yflip),obRender(a0)			; clear Sonic's current flip flags
 		or.b	d1,obRender(a0)				; set new X-flip flag
 		bra.w	.loadframe				; update current frame
 ; End of function Sonic_Animate

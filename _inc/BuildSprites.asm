@@ -1,13 +1,19 @@
 ; Flags used by obRender.
-; bit 0				horizontally mirrors the sprite
-; bit 1				vertically mirrors the sprite
-; bits 2-3			position sprite using either screen or level coordinates
-; bit 4				use obHeight to determine vertical culling radius, rather than assuming 32 pixels
-; bit 5				objects that point directly to sprite data, rather than a list of sprites
-; bit 6				only used by Sonic to visually layer him behind loops
-; bit 7				sprite is visible and rendered on the previous frame (NOTE: in
-;				Sonic 1, this is required for objects to process collision using
-;				ReactToItem!)
+sprite_xflip:		equ 0		; Flips sprite mappings horizontally.
+sprite_yflip:		equ 1		; Flips sprite mappings vertically.
+sprite_cam_field:	equ 2		; Positions sprites using foreground coordinates.
+sprite_cam_screen:	equ 0		; Positions sprites using screen coordinates.
+					; (implicited if neither bits 2-3 are set)
+sprite_cam_bg:		equ 3		; (unused) Positions sprites using background coordinates.
+sprite_customheight:	equ 4		; Uses obHeight to determine its display height, rather than
+					; assuming the object is 32 pixels tall.
+sprite_rawmappings:	equ 5		; Used if object points to raw sprite (mappings) data rather
+					; than an index of sprites.
+sprite_looping:		equ 6		; Only used to make Sonic visible appear behind loops.
+sprite_rendered:	equ 7		; Set when a sprite is inside the visible screen space and
+					; has been rendered on the previous frame. Note that in this
+					; game, an object MUST have this flag set for ReactToItem to
+					; process its collision.
 
 ; ===========================================================================
 ; BuildSprites camera pointers to be used depending on bits 2-3 in obRender.
@@ -46,12 +52,13 @@ BuildSprites:
 		movea.w	(a4,d6.w),a0			; load object's address in RAM
 		tst.b	obID(a0)			; has an object been queued for display but deleted?
 		beq.w	.skipObject			; if yes, skip (this appears to be an effort to fix display-and-delete bugs)
-		bclr	#7,obRender(a0)			; set object as not visible
+		bclr	#sprite_rendered,obRender(a0)	; set object as not visible
 
 	; --- Coordinate system ---
 		move.b	obRender(a0),d0
 		move.b	d0,d4
-		andi.w	#%1100,d0			; get drawing coordinate system in render flags (bit 2-3)
+		; get drawing coordinate system in render flags (bit 2-3)
+		andi.w	#sprite_cam_screen|1<<sprite_cam_field|1<<sprite_cam_bg,d0
 		beq.s	.screenCoords			; branch if 0 (on-screen positioning coordinate system)
 		movea.l	BuildSpr_Cameras(pc,d0.w),a1	; load camera pointers for coordinate system (in practice, only foreground camera is ever used)
 
@@ -70,7 +77,7 @@ BuildSprites:
 		addi.w	#$80,d3				; add VDP sprite start
 
 	; --- Screen bounds check for Y-position ---
-		btst	#4,d4				; is custom height flag set?
+		btst	#sprite_customheight,d4		; is custom height flag set?
 		beq.s	.assumeHeight			; if not, assume height instead
 
 		moveq	#0,d0
@@ -109,7 +116,7 @@ BuildSprites:
 		movea.l	obMap(a0),a1
 
 		moveq	#1-1,d1				; write only one sprite for raw-mappings
-		btst	#5,d4				; is "raw-mappings" flag on?
+		btst	#sprite_rawmappings,d4		; is "raw-mappings" flag on?
 		bne.s	.drawFrame			; if yes, branch (assume mappings point to a single sprite piece)
 
 		move.b	obFrame(a0),d1
@@ -124,7 +131,7 @@ BuildSprites:
 		bsr.w	BuildSpr_Draw
 
 	.setVisible:
-		bset	#7,obRender(a0)			; set object as visible
+		bset	#sprite_rendered,obRender(a0)	; set object as visible
 
 	.skipObject:
 		addq.w	#2,d6				; advance to next entry in layer
@@ -247,9 +254,9 @@ buildsprite:	macro xflip,yflip
 BuildSpr_Draw:
 		movea.w	obGfx(a0),a3
 
-		btst	#0,d4				; is X-flip flag set?
+		btst	#sprite_xflip,d4		; is X-flip flag set?
 		bne.s	BuildSpr_FlipX			; if yes, branch
-		btst	#1,d4				; is Y-flip flag set?
+		btst	#sprite_yflip,d4		; is Y-flip flag set?
 		bne.w	BuildSpr_FlipY			; if yes, branch
 
 BuildSpr_Normal:
@@ -257,7 +264,7 @@ BuildSpr_Normal:
 ; ---------------------------------------------------------------------------
 
 BuildSpr_FlipX:
-		btst	#1,d4				; is Y-flip flag set as well?
+		btst	#sprite_yflip,d4		; is Y-flip flag set as well?
 		bne.w	BuildSpr_FlipXY			; if yes, branch
 
 		buildsprite	1,0

@@ -64,7 +64,7 @@ BossLabyrinth_ShipMain:	; Routine 2
 		jsr	(AnimateSprite).l
 		moveq	#3,d0
 		and.b	obStatus(a0),d0
-		andi.b	#$FC,obRender(a0)
+		andi.b	#$FF-(1<<sprite_xflip|1<<sprite_yflip),obRender(a0)
 		or.b	d0,obRender(a0)
 		jmp	(DisplaySprite).l
 ; ===========================================================================
@@ -413,6 +413,6 @@ BossLabyrinth_Display:
 		move.b	obStatus(a1),obStatus(a0)
 		moveq	#3,d0
 		and.b	obStatus(a0),d0
-		andi.b	#$FC,obRender(a0)
+		andi.b	#$FF-(1<<sprite_xflip|1<<sprite_yflip),obRender(a0)
 		or.b	d0,obRender(a0)
 		jmp	(DisplaySprite).l

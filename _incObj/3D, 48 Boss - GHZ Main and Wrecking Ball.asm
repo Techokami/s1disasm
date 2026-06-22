@@ -43,7 +43,7 @@ BGHZ_LoadBoss:
 		move.w	obY(a0),obY(a1)
 		move.l	#Map_Eggman,obMap(a1) 			; point to Eggman's mappings
 		move.w	#ArtTile_Eggman,obGfx(a1) 		; point to Eggman's art (VRAM tile index and palette line)
-		move.b	#4,obRender(a1) 			; set the object to position based on where it is in the level and not a static position on screen
+		move.b	#1<<sprite_cam_field,obRender(a1) 	; set the object to position based on where it is in the level and not a static position on screen
 		move.b	#64/2,obActWid(a1) 			; set width to 64 pixel radius (to know when sprite is off screen and should be hidden)
 		move.b	#3,obPriority(a1) 			; set sprite priority to 3 (0 is front of screen)
 		move.b	(a2)+,obAnim(a1) 			; load appropriate animation index, then increment a2 (now we are one full entry lower in our ObjData table)
@@ -74,7 +74,7 @@ BGHZ_ShipMain:	; Routine 2
 
 		move.b	obStatus(a0),d0 			; move current object status
 		andi.b	#3,d0 					; AND with obStatus so now d0 contains X and Y logical flip bits only
-		andi.b	#$FC,obRender(a0) 			; clear the x and y flip
+		andi.b	#$FF-(1<<sprite_xflip|1<<sprite_yflip),obRender(a0) 			; clear the x and y flip
 		or.b	d0,obRender(a0) 			; OR the two together, so now DisplaySprite has X and Y orientation and above render bits
 		jmp	(DisplaySprite).l
 ; ===========================================================================
@@ -406,7 +406,7 @@ BGHZ_Display:
 		jsr	(AnimateSprite).l
 		move.b	obStatus(a0),d0 			; move current object status
 		andi.b	#3,d0 					; AND with obstatus so now d0 contains X and Y logical flip bits only
-		andi.b	#$FC,obRender(a0) 			; clear the x and y flip
+		andi.b	#$FF-(1<<sprite_xflip|1<<sprite_yflip),obRender(a0) 			; clear the x and y flip
 		or.b	d0,obRender(a0) 			; OR the two together, so now DisplaySprite has X and Y orientation and above render bits
 		jmp	(DisplaySprite).l
 
@@ -461,7 +461,7 @@ GBall_LinkSetup:
 		lsr.w	#object_size_bits,d5			; shift right by object size bits, so that d5 contains a bit index now instead of byte index
 		andi.w	#$7F,d5					; limit index to 0 through 128
 		move.b	d5,(a2)+				; set this index as the subtype and increment address
-		move.b	#4,obRender(a1)				; set render flags to normal level/playfield coordinates (not screen relative)
+		move.b	#1<<sprite_cam_field,obRender(a1)	; set render flags to normal level/playfield coordinates (not screen relative)
 		move.b	#16/2,obActWid(a1)			; set radius of object in pixels (used for hiding sprites off screen)
 		move.b	#6,obPriority(a1)			; set object render priority to 6 (lower priority)
 		move.l	BGHZ_ParentObj(a0),BGHZ_ParentObj(a1)	; copy parent boss object pointer to link's parent object pointer	
