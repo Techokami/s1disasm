@@ -575,8 +575,21 @@ Sonic_WallSpeedAdjust:
 
 .hitright:	; d0 is $C0, Sonic is facing right
 		add.w	d1,obVelX(a0)				; adjust X-velocity to prevent Sonic from walking into the wall
+	if FixBugs
+		; Knuckles in Sonic 2 changed this code, likely to patch a bug
+		; where if the player slides into a wall while trying to move
+		; in the opposite direction, you'd enter the walking animation
+		; while moving away.
+		move.w	#0,obInertia(a0)			; clear ground speed
+		btst	#0,obStatus(a0)				; is Sonic facing the wall?
+		bne.s	.awayright				; if not, branch
+		bset	#5,obStatus(a0)				; set pushing flag
+
+.awayright:
+	else
 		bset	#5,obStatus(a0)				; set pushing flag
 		move.w	#0,obInertia(a0)			; clear ground speed
+	endif
 		rts						; return
 ; ===========================================================================
 
@@ -589,8 +602,18 @@ Sonic_WallSpeedAdjust:
 ; loc_13066:
 .hitleft:	; d0 is $40, Sonic is facing left
 		sub.w	d1,obVelX(a0)				; adjust X-velocity to prevent Sonic from walking into the wall
+	if FixBugs
+		; See above.
+		move.w	#0,obInertia(a0)			; clear ground speed
+		btst	#0,obStatus(a0)				; is Sonic facing the wall?
+		beq.s	.awayleft				; if not, branch
+		bset	#5,obStatus(a0)				; set pushing flag
+
+.awayleft:
+	else
 		bset	#5,obStatus(a0)				; set pushing flag
 		move.w	#0,obInertia(a0)			; clear ground speed
+	endif
 		rts						; return
 ; ===========================================================================
 

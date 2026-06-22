@@ -283,10 +283,23 @@ Solid_Below:
 		bpl.s	Solid_TopBtmAir				; branch if moving downwards
 		tst.w	d3
 		bpl.s	Solid_TopBtmAir				; branch if nearer top (he can't be)
+	if FixBugs=0
+		; This is in the wrong place: Sonic will not be pushed out of objects
+		; from above if he's not moving upwards against it! This is much more
+		; noticeable if you port Knuckles, as he'll be able to phase through
+		; objects when climbing up walls.
+
+		; Sonic 3 & Knuckles and Knuckles in Sonic 2 attempted to fix this, but
+		; didn't do a particularly good job at it.
 		sub.w	d3,obY(a1)				; correct Sonic's position
+	endif
 		move.w	#0,obVelY(a1)				; stop Sonic moving
 
 Solid_TopBtmAir:
+	if FixBugs
+		; See above.
+		sub.w	d3,obY(a1)				; correct Sonic's position
+	endif
 		moveq	#-1,d4					; return top/bottom collision
 		rts	
 ; ===========================================================================
