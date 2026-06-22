@@ -7,9 +7,9 @@ sprite_cam_screen:	equ 0		; Positions sprites using screen coordinates.
 sprite_cam_bg:		equ 3		; (unused) Positions sprites using background coordinates.
 sprite_customheight:	equ 4		; Uses obHeight to determine its display height, rather than
 					; assuming the object is 32 pixels tall.
-sprite_rawmappings:	equ 5		; Used if object points to raw sprite (mappings) data rather
-					; than an index of sprites.
-sprite_looping:		equ 6		; Only used to make Sonic visible appear behind loops.
+sprite_rawmappings:	equ 5		; Used if object points to raw mappings data rather than
+					; an index of mappings.
+sprite_looping:		equ 6		; Only used to make Sonic appear behind loops.
 sprite_rendered:	equ 7		; Set when a sprite is inside the visible screen space and
 					; has been rendered on the previous frame. Note that in this
 					; game, an object MUST have this flag set for ReactToItem to

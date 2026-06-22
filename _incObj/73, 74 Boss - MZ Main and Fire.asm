@@ -52,7 +52,7 @@ BossMarble_LoadBoss:
 		move.b	(a2)+,obPriority(a1)
 		move.l	#Map_Eggman,obMap(a1)			; load mappings and graphics for the object
 		move.w	#ArtTile_Eggman,obGfx(a1)
-		move.b	#4,obRender(a1)				; set the object to position based on where it is in the level and not a static position on screen
+		move.b	#1<<sprite_cam_field,obRender(a1)	; set the object to position based on where it is in the level and not a static position on screen
 		move.b	#64/2,obActWid(a1)			; set collision to 20 pixel radius box
 
 ; objoff_34 is used here as a reference back to the main boss controller. 
@@ -539,7 +539,7 @@ BossFire_Main:	; Routine 0
 		move.b	#16/2,obWidth(a0)
 		move.l	#Map_Fire,obMap(a0)
 		move.w	#ArtTile_MZ_Fireball,obGfx(a0)
-		move.b	#4,obRender(a0)
+		move.b	#1<<sprite_cam_field,obRender(a0)
 		move.b	#5,obPriority(a0)
 		move.w	obY(a0),obBossY(a0)
 		move.b	#16/2,obActWid(a0)

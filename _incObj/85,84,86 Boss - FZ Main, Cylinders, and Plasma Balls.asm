@@ -71,8 +71,8 @@ BossFinal_LoadBoss:
 		move.b	(a3)+,obActWid(a1)
 	endif
 		move.b	(a3)+,obHeight(a1)
-		move.b	#4,obRender(a1)
-		bset	#7,obRender(a0)
+		move.b	#1<<sprite_cam_field,obRender(a1)
+		bset	#sprite_rendered,obRender(a0)
 		move.l	a0,objoff_34(a1)
 		dbf	d1,BossFinal_Loop
 
@@ -663,9 +663,9 @@ EggmanCylinder_Main:	; Routine
 		move.b	obSubtype(a0),d0
 		add.w	d0,d0
 		adda.w	d0,a1
-		move.b	#4,obRender(a0)
-		bset	#7,obRender(a0)
-		bset	#4,obRender(a0)
+		move.b	#1<<sprite_cam_field,obRender(a0)
+		bset	#sprite_rendered,obRender(a0)
+		bset	#sprite_customheight,obRender(a0)
 		move.w	#ArtTile_FZ_Boss,obGfx(a0)
 		move.l	#Map_EggCyl,obMap(a0)
 		move.w	(a1)+,obX(a0)
@@ -686,7 +686,7 @@ EggmanCylinder_Main:	; Routine
 EggmanCylinder_Action: ; Routine 2
 		cmpi.b	#2,obSubtype(a0)
 		ble.s	loc_1A4DC
-		bset	#1,obRender(a0)
+		bset	#sprite_yflip,obRender(a0)
 
 loc_1A4DC:
 		clr.l	objoff_3C(a0)
@@ -809,7 +809,7 @@ locret_1A602:
 
 ; loc_1A604:
 EggmanCylinder_Top:
-		bset	#1,obRender(a0)
+		bset	#sprite_yflip,obRender(a0)
 		tst.b	objoff_29(a0)
 		bne.s	loc_1A646
 		movea.l	objoff_34(a0),a1
@@ -878,8 +878,8 @@ BossPlasma_Main:	; Routine 0
 		move.b	#3,obPriority(a0)
 		move.b	#16/2,obWidth(a0)
 		move.b	#16/2,obHeight(a0)
-		move.b	#4,obRender(a0)
-		bset	#7,obRender(a0)
+		move.b	#1<<sprite_cam_field,obRender(a0)
+		bset	#sprite_rendered,obRender(a0)
 		addq.b	#2,obRoutine(a0)
 
 BossPlasma_Generator:; Routine 2
@@ -944,8 +944,8 @@ BossPlasma_Loop:
 		move.b	#col_none,obColType(a1)
 		move.b	#3,obPriority(a1)
 		move.w	#$3E,obSubtype(a1)
-		move.b	#4,obRender(a1)
-		bset	#7,obRender(a1)
+		move.b	#1<<sprite_cam_field,obRender(a1)
+		bset	#sprite_rendered,obRender(a1)
 		move.l	a0,objoff_34(a1)
 		jsr	(RandomNumber).l
 		move.w	objoff_32(a0),d1

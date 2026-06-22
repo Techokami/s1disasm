@@ -19,7 +19,7 @@ CSI_Main:	; Routine 0
 		addq.b	#2,obRoutine(a0)			; advance to CSI_Display
 		move.l	#Map_ContScr,obMap(a0)			; set mappings
 		move.w	#ArtTile_Continue_Sonic|Tile_Prio,obGfx(a0) ; set art tile and priority flag
-		move.b	#0,obRender(a0)				; set to screen-positioned mode
+		move.b	#sprite_cam_screen,obRender(a0)		; set to screen-positioned mode
 		move.b	#120/2,obActWid(a0)			; set sprite display width
 		move.w	#$80+(320/2),obX(a0)			; set X-position to centered
 		move.w	#$80+64,obScreenY(a0)			; set Y-position
@@ -78,7 +78,7 @@ CSI_CreateMiniSonics:
 		move.b	#6,obRoutine(a1)			; use CSI_ShowMiniSonic routine
 		move.l	#Map_ContScr,obMap(a1)			; set mappings
 		move.w	#ArtTile_Mini_Sonic|Tile_Prio,obGfx(a1)	; set art tile and priority flag
-		move.b	#0,obRender(a1)				; set to screen-positioned mode
+		move.b	#sprite_cam_screen,obRender(a1)		; set to screen-positioned mode
 		lea	object_size(a1),a1			; advance to next object RAM slot
 		dbf	d1,.loopMiniSonics			; repeat for number of continues
 
@@ -136,7 +136,7 @@ CSon_Main:	; Routine 0
 		move.w	#$C0,obY(a0)				; set starting Y-position
 		move.l	#Map_Sonic,obMap(a0)			; set mappings (cross-referenced from main Sonic object)
 		move.w	#ArtTile_Sonic,obGfx(a0)		; set art tile (cross-referenced from main Sonic object)
-		move.b	#4,obRender(a0)				; set playfield-positioned mode
+		move.b	#1<<sprite_cam_field,obRender(a0)	; set playfield-positioned mode
 		move.b	#2,obPriority(a0)			; set sprite priority (behind other elements)
 		move.b	#id_Float3,obAnim(a0)			; use "floating" animation
 		move.w	#$400,obVelY(a0)			; make Sonic fall from above

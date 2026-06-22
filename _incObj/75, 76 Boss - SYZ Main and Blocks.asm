@@ -57,7 +57,7 @@ BossSpringYard_LoadBoss:
 		move.b	(a2)+,obPriority(a1)
 		move.l	#Map_Eggman,obMap(a1)			; load mappings and graphics for the object
 		move.w	#ArtTile_Eggman,obGfx(a1)
-		move.b	#4,obRender(a1)				; set the object to position based on where it is in the level and not a static position on screen
+		move.b	#1<<sprite_cam_field,obRender(a1)	; set the object to position based on where it is in the level and not a static position on screen
 		move.b	#64/2,obActWid(a1)			; define horizontal width radius (used to hide objects when they leave the screen space)
 
 ; objoff_34 is used here as a reference back to the main boss controller. 
@@ -738,7 +738,7 @@ BossBlock_MakeBlock:
 		move.b	#id_BossBlock,obID(a1)
 		move.l	#Map_BossBlock,obMap(a1)
 		move.w	#ArtTile_Level|Tile_Pal3,obGfx(a1)
-		move.b	#4,obRender(a1)
+		move.b	#1<<sprite_cam_field,obRender(a1)
 		move.b	#32/2,obActWid(a1)
 		move.b	#32/2,obHeight(a1)
 		move.b	#3,obPriority(a1)
