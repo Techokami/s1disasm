@@ -1,24 +1,4 @@
 ; ===========================================================================
-; Flags used by obRender
-sprite_xflip_bit:	equ 0				; flip sprite mappings horizontally (X-axis)
-sprite_yflip_bit:	equ 1				; flip sprite mappings vertically (Y-axis)
-sprite_cam_field_bit:	equ 2				; position with foreground coordinates (playfield-positioned mode)
-sprite_cam_bg_bit:	equ 3				; position with background coordinates (unused, see notes in BuildSpr_Cameras)
-sprite_customheight_bit:equ 4				; use obHeight instead of assuming 32px to determine display height
-sprite_rawmappings_bit:	equ 5				; obMap points to single, specific sprite piece rather than index of mappings
-sprite_looping_bit:	equ 6				; display behind looping chunks (only used by Sonic)
-sprite_rendered_bit:	equ 7				; set when sprite is in visible screen space and got rendered the previous frame
-
-sprite_xflip:		equ 1<<sprite_xflip_bit
-sprite_yflip:		equ 1<<sprite_yflip_bit
-sprite_cam_screen:	equ 0				; position with screen-fixed coordinates (implicited if bits 2-3 are 0)
-sprite_cam_field:	equ 1<<sprite_cam_field_bit
-sprite_cam_bg:		equ 1<<sprite_cam_bg_bit
-sprite_customheight:	equ 1<<sprite_customheight_bit
-sprite_rawmappings:	equ 1<<sprite_rawmappings_bit
-sprite_rendered:	equ 1<<sprite_rendered_bit
-
-; ===========================================================================
 ; BuildSprites camera pointers to be used depending on bits 2-3 in obRender.
 
 ; Here they point to the camera X-position, and it's expected that 4 bytes
@@ -33,8 +13,8 @@ BuildSpr_Cameras:
 		dc.l v_screenposx&$FFFFFF		; foreground camera
 		dc.l v_bgscreenposx&$FFFFFF		; background camera 1 (unused)
 		dc.l v_bg3screenposx&$FFFFFF		; background camera 2 (unused)
-
 ; ===========================================================================
+
 ; ---------------------------------------------------------------------------
 ; Subroutine to convert mappings (etc) into proper Mega Drive sprites
 ; and queue them into a linked sprite buffer table (transferred in VBlank).
