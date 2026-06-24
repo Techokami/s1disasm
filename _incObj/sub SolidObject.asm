@@ -123,7 +123,7 @@ SolidObject_Heightmap:
 		bhi.w	Solid_NoCollision			; branch if Sonic is outside right edge
 
 		move.w	d0,d5
-		btst	#sprite_xflip,obRender(a0)		; is object horizontally flipped?
+		btst	#sprite_xflip_bit,obRender(a0)		; is object horizontally flipped?
 		beq.s	.no_xflip				; if not, branch
 		not.w	d5
 		add.w	d3,d5					; d5 = x pos of Sonic on object, x-flipped if needed

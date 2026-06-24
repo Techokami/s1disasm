@@ -1,19 +1,22 @@
-; Flags used by obRender.
-sprite_xflip:		equ 0		; Flips sprite mappings horizontally.
-sprite_yflip:		equ 1		; Flips sprite mappings vertically.
-sprite_cam_field:	equ 2		; Positions sprites using foreground coordinates.
-sprite_cam_screen:	equ 0		; Positions sprites using screen coordinates.
-					; (implicited if neither bits 2-3 are set)
-sprite_cam_bg:		equ 3		; (unused) Positions sprites using background coordinates.
-sprite_customheight:	equ 4		; Uses obHeight to determine its display height, rather than
-					; assuming the object is 32 pixels tall.
-sprite_rawmappings:	equ 5		; Used if object points to raw mappings data rather than
-					; an index of mappings.
-sprite_looping:		equ 6		; Only used to make Sonic appear behind loops.
-sprite_rendered:	equ 7		; Set when a sprite is inside the visible screen space and
-					; has been rendered on the previous frame. Note that in this
-					; game, an object MUST have this flag set for ReactToItem to
-					; process its collision.
+; ===========================================================================
+; Flags used by obRender
+sprite_xflip_bit:	equ 0				; flip sprite mappings horizontally (X-axis)
+sprite_yflip_bit:	equ 1				; flip sprite mappings vertically (Y-axis)
+sprite_cam_field_bit:	equ 2				; position with foreground coordinates (playfield-positioned mode)
+sprite_cam_bg_bit:	equ 3				; position with background coordinates (unused, see notes in BuildSpr_Cameras)
+sprite_customheight_bit:equ 4				; use obHeight instead of assuming 32px to determine display height
+sprite_rawmappings_bit:	equ 5				; obMap points to single, specific sprite piece rather than index of mappings
+sprite_looping_bit:	equ 6				; display behind looping chunks (only used by Sonic)
+sprite_rendered_bit:	equ 7				; set when sprite is in visible screen space and got rendered the previous frame
+
+sprite_xflip:		equ 1<<sprite_xflip_bit
+sprite_yflip:		equ 1<<sprite_yflip_bit
+sprite_cam_screen:	equ 0				; position with screen-fixed coordinates (implicited if bits 2-3 are 0)
+sprite_cam_field:	equ 1<<sprite_cam_field_bit
+sprite_cam_bg:		equ 1<<sprite_cam_bg_bit
+sprite_customheight:	equ 1<<sprite_customheight_bit
+sprite_rawmappings:	equ 1<<sprite_rawmappings_bit
+sprite_rendered:	equ 1<<sprite_rendered_bit
 
 ; ===========================================================================
 ; BuildSprites camera pointers to be used depending on bits 2-3 in obRender.
@@ -30,8 +33,8 @@ BuildSpr_Cameras:
 		dc.l v_screenposx&$FFFFFF		; foreground camera
 		dc.l v_bgscreenposx&$FFFFFF		; background camera 1 (unused)
 		dc.l v_bg3screenposx&$FFFFFF		; background camera 2 (unused)
-; ===========================================================================
 
+; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Subroutine to convert mappings (etc) into proper Mega Drive sprites
 ; and queue them into a linked sprite buffer table (transferred in VBlank).
@@ -52,13 +55,12 @@ BuildSprites:
 		movea.w	(a4,d6.w),a0			; load object's address in RAM
 		tst.b	obID(a0)			; has an object been queued for display but deleted?
 		beq.w	.skipObject			; if yes, skip (this appears to be an effort to fix display-and-delete bugs)
-		bclr	#sprite_rendered,obRender(a0)	; set object as not visible
+		bclr	#sprite_rendered_bit,obRender(a0) ; set object as not visible
 
 	; --- Coordinate system ---
 		move.b	obRender(a0),d0
 		move.b	d0,d4
-		; get drawing coordinate system in render flags (bit 2-3)
-		andi.w	#sprite_cam_screen|1<<sprite_cam_field|1<<sprite_cam_bg,d0
+		andi.w	#sprite_cam_field|sprite_cam_bg,d0 ; get drawing coordinate system in render flags (bit 2-3)
 		beq.s	.screenCoords			; branch if 0 (on-screen positioning coordinate system)
 		movea.l	BuildSpr_Cameras(pc,d0.w),a1	; load camera pointers for coordinate system (in practice, only foreground camera is ever used)
 
@@ -77,7 +79,7 @@ BuildSprites:
 		addi.w	#$80,d3				; add VDP sprite start
 
 	; --- Screen bounds check for Y-position ---
-		btst	#sprite_customheight,d4		; is custom height flag set?
+		btst	#sprite_customheight_bit,d4	; is custom height flag set?
 		beq.s	.assumeHeight			; if not, assume height instead
 
 		moveq	#0,d0
@@ -116,7 +118,7 @@ BuildSprites:
 		movea.l	obMap(a0),a1
 
 		moveq	#1-1,d1				; write only one sprite for raw-mappings
-		btst	#sprite_rawmappings,d4		; is "raw-mappings" flag on?
+		btst	#sprite_rawmappings_bit,d4	; is "raw-mappings" flag on?
 		bne.s	.drawFrame			; if yes, branch (assume mappings point to a single sprite piece)
 
 		move.b	obFrame(a0),d1
@@ -131,7 +133,7 @@ BuildSprites:
 		bsr.w	BuildSpr_Draw
 
 	.setVisible:
-		bset	#sprite_rendered,obRender(a0)	; set object as visible
+		bset	#sprite_rendered_bit,obRender(a0) ; set object as visible
 
 	.skipObject:
 		addq.w	#2,d6				; advance to next entry in layer
@@ -254,9 +256,9 @@ buildsprite:	macro xflip,yflip
 BuildSpr_Draw:
 		movea.w	obGfx(a0),a3
 
-		btst	#sprite_xflip,d4		; is X-flip flag set?
+		btst	#sprite_xflip_bit,d4		; is X-flip flag set?
 		bne.s	BuildSpr_FlipX			; if yes, branch
-		btst	#sprite_yflip,d4		; is Y-flip flag set?
+		btst	#sprite_yflip_bit,d4		; is Y-flip flag set?
 		bne.w	BuildSpr_FlipY			; if yes, branch
 
 BuildSpr_Normal:
@@ -264,7 +266,7 @@ BuildSpr_Normal:
 ; ---------------------------------------------------------------------------
 
 BuildSpr_FlipX:
-		btst	#sprite_yflip,d4		; is Y-flip flag set as well?
+		btst	#sprite_yflip_bit,d4		; is Y-flip flag set as well?
 		bne.w	BuildSpr_FlipXY			; if yes, branch
 
 		buildsprite	1,0

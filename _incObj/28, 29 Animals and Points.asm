@@ -137,8 +137,8 @@ Anml_Main:	; Routine 0
 		move.w	2(a1,d0.w),obVelY(a0)			; set it to current speed too
 
 		move.b	#24/2,obHeight(a0)			; set height
-		move.b	#1<<sprite_cam_field,obRender(a0)	; set to playfield-positioned mode
-		bset	#sprite_xflip,obRender(a0)		; set X-flip flag (face left)
+		move.b	#sprite_cam_field,obRender(a0)		; set to playfield-positioned mode
+		bset	#sprite_xflip_bit,obRender(a0)		; set X-flip flag (face left)
 		move.b	#6,obPriority(a0)			; set sprite priority (very low)
 		move.b	#16/2,obActWid(a0)			; set sprite display width
 		move.b	#8-1,obTimeFrame(a0)			; initial animation delay for flying animals (slow gravity)
@@ -170,8 +170,8 @@ Anml_FromEnemy:
 
 	.setupAnimal:
 		move.b	#24/2,obHeight(a0)			; set height
-		move.b	#1<<sprite_cam_field,obRender(a0)	; set to playfield-positioned mode
-		bset	#sprite_xflip,obRender(a0)		; set X-flip flag
+		move.b	#sprite_cam_field,obRender(a0)		; set to playfield-positioned mode
+		bset	#sprite_xflip_bit,obRender(a0)		; set X-flip flag
 		move.b	#6,obPriority(a0)			; set sprite priority (very low)
 		move.b	#16/2,obActWid(a0)			; set sprite display width
 		move.b	#8-1,obTimeFrame(a0)			; initial animation delay for flying animals (slow gravity)
@@ -226,7 +226,7 @@ Anml_ChkFloor:	; Routine 2
 		btst	#4,(v_vblank_byte).w			; reverse prison escape direction every 16-32 frames in a 32 frame window
 		beq.s	.display				; branch on other frames
 		neg.w	obVelX(a0)				; invert X-direction (hop left and right on floor)
-		bchg	#sprite_xflip,obRender(a0)		; flip X-orientation
+		bchg	#sprite_xflip_bit,obRender(a0)		; flip X-orientation
 
 	.display:
 		bra.w	DisplaySprite				; display animal
@@ -280,7 +280,7 @@ Anml_SlowGravity: ; Routine 6/E
 		cmpi.b	#$A,obSubtype(a0)			; is this a Flicky (bird) type A?
 		beq.s	.animate				; if yes, keep it moving to the left
 		neg.w	obVelX(a0)				; invert X-direction (hop left and right on floor)
-		bchg	#sprite_xflip,obRender(a0)		; flip X-orientation
+		bchg	#sprite_xflip_bit,obRender(a0)		; flip X-orientation
 
 	.animate:
 		subq.b	#1,obTimeFrame(a0)			; decrement animation delay
@@ -395,7 +395,7 @@ Anml_End_DoubleHop: ; Routine 28
 		not.b	animal_doublehop(a0)			; flip double-hop flag
 		bne.s	.bounce					; if flag is set now, do not invert direction this time
 		neg.w	obVelX(a0)				; invert X-direction (hop left and right on floor)
-		bchg	#sprite_xflip,obRender(a0)		; flip X-orientation
+		bchg	#sprite_xflip_bit,obRender(a0)		; flip X-orientation
 
 	.bounce:
 		add.w	d1,obY(a0)				; align animal to floor
@@ -437,7 +437,7 @@ Anml_End_HopAround: ; Routine 1E/22
 		tst.w	d1					; has animal hit the floor?
 		bpl.s	.chkDel					; if not, branch
 		neg.w	obVelX(a0)				; invert X-direction (hop left and right on floor)
-		bchg	#sprite_xflip,obRender(a0)		; flip X-orientation
+		bchg	#sprite_xflip_bit,obRender(a0)		; flip X-orientation
 		add.w	d1,obY(a0)				; align animal to floor
 		move.w	animal_speedY(a0),obVelY(a0)		; bounce animal upwards
 
@@ -461,7 +461,7 @@ Anml_End_DoubleFly: ; Routine 26
 		not.b	animal_doublehop(a0)			; flip double-hop flag
 		bne.s	.bounce					; if flag is set now, do not invert direction this time
 		neg.w	obVelX(a0)				; invert X-direction (hop left and right on floor)
-		bchg	#sprite_xflip,obRender(a0)		; flip X-orientation
+		bchg	#sprite_xflip_bit,obRender(a0)		; flip X-orientation
 
 	.bounce:
 		add.w	d1,obY(a0)				; align animal to floor
@@ -509,11 +509,11 @@ Anml_End_Bounce:
 
 ; loc_93EC:
 Anml_End_FaceSonic:
-		bset	#sprite_xflip,obRender(a0)		; make animal face left
+		bset	#sprite_xflip_bit,obRender(a0)		; make animal face left
 		move.w	obX(a0),d0				; get animal's X-position
 		sub.w	(v_player+obX).w,d0			; is Sonic to the right of the animal?
 		bhs.s	.return					; if not, branch
-		bclr	#sprite_xflip,obRender(a0)		; make animal face right
+		bclr	#sprite_xflip_bit,obRender(a0)		; make animal face right
 	.return:
 		rts						; return
 ; End of function Anml_End_FaceSonic
@@ -559,7 +559,7 @@ Poi_Main:	; Routine 0
 		addq.b	#2,obRoutine(a0)			; advance to Poi_Slower
 		move.l	#Map_Points,obMap(a0)			; set mappings
 		move.w	#ArtTile_Points|Tile_Pal2,obGfx(a0)	; set art tile and palette
-		move.b	#1<<sprite_cam_field,obRender(a0)	; set to playfield-positioned mode
+		move.b	#sprite_cam_field,obRender(a0)		; set to playfield-positioned mode
 		move.b	#1,obPriority(a0)			; set sprite priority (above Sonic)
 		move.b	#16/2,obActWid(a0)			; set display width
 		move.w	#-$300,obVelY(a0)			; move points object upwards

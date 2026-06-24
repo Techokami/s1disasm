@@ -39,7 +39,7 @@ Pri_Var:	; routine, width, priority, frame
 Pri_Main:	; Routine 0
 		move.l	#Map_Pri,obMap(a0)			; set mappings
 		move.w	#ArtTile_Prison_Capsule,obGfx(a0)	; set art tile
-		move.b	#1<<sprite_cam_field,obRender(a0)	; set to playfield-positioned mode
+		move.b	#sprite_cam_field,obRender(a0)		; set to playfield-positioned mode
 		move.w	obY(a0),pri_origY(a0)			; remember initial Y-position
 
 		moveq	#0,d0					; clear d0

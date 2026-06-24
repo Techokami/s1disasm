@@ -34,7 +34,7 @@ LTag_Main:	; Routine 0
 		; generator, whose initialization code was likely copied from here. It would
 		; also effect the lava in that game had it not been for a hackish workaround
 		; where it uses blank mappings outside of edit mode.
-		move.b	#1<<sprite_rendered|1<<sprite_cam_field,obRender(a0)	; set object visible flag ($80) and playfield-positioned mode (4)
+		move.b	#sprite_rendered|sprite_cam_field,obRender(a0) ; set object visible flag ($80) and playfield-positioned mode (4)
 ; ---------------------------------------------------------------------------
 
 LTag_ChkDel:	; Routine 2
