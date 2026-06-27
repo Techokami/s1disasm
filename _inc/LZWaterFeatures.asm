@@ -380,7 +380,7 @@ LZWindTunnels:
 		jsr	(QueueSound2).l				; (same one that is used by GHZ waterfalls)
 	.skipSound:
 
-		tst.b	(f_wtunnelallow).w			; are wind tunnels disabled?
+		tst.b	(f_wtunneldisallow).w			; are wind tunnels disabled?
 		bne.w	.return					; if yes, branch
 		cmpi.b	#4,obRoutine(a1)			; is Sonic hurt/dying?
 		bhs.s	.disableTunnel				; if yes, branch
