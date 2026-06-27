@@ -3034,7 +3034,7 @@ Level_SkipScroll:
 Level_CheckRestart:
 		cmpi.b	#id_Demo,(v_gamemode).w		; are we in a demo?
 		beq.s	Level_ChkDemo			; if yes, branch
-	if Revision=0
+	if FixBugs|(Revision=0)
 		tst.w	(f_restart).w			; is the level set to restart?
 		bne.w	GM_Level			; if yes, restart leve
 	endif
