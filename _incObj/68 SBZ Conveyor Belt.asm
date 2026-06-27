@@ -2,8 +2,8 @@
 ; ---------------------------------------------------------------------------
 ; Object 68 - conveyor belts (SBZ)
 ; 
-; Note: These are just the invisible objects that move Sonic horizontally,
-; the conveyor belt graphics themselves are part of the level chunks.
+; Note: This is just the invisible object that moves Sonic horizontally.
+; The conveyor belt graphics themselves are part of the level chunks.
 ; ---------------------------------------------------------------------------
 
 Conveyor:
