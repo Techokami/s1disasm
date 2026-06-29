@@ -40,10 +40,11 @@ Saw_Action:	; Routine 2
 		move.w	Saw_Types(pc,d0.w),d1			; find behavior type for current saw
 		jsr	Saw_Types(pc,d1.w)			; execute behavior, then return ehre
 
-		out_of_range.s	.delete,saw_origX(a0)		; has saw gone out of range? if yes, branch
+		out_of_range.s	Saw_Delete,saw_origX(a0)	; has saw gone out of range? if yes, branch
 		jmp	(DisplaySprite).l			; display saw sprite
+; ---------------------------------------------------------------------------
 
-	.delete:
+Saw_Delete:
 		jmp	(DeleteObject).l			; delete saw
 
 ; ===========================================================================
@@ -91,7 +92,7 @@ Saw_Type1_PizzaLeftRight:
 		rts						; return
 ; ===========================================================================
 
-Saw_Type2_PizzaUpDown:	; Moves up and down
+Saw_Type2_PizzaUpDown:
 		move.w	#$30,d1					; (unused, probably a leftover from copying subtype 1)
 		moveq	#0,d0					; clear d0
 		move.b	(v_oscillate+6).w,d0			; get oscillatory value (frequency 2, middle value $18)
@@ -149,6 +150,11 @@ Saw_Type3_SpeedingFromLeft:
 
 	.hide:
 		addq.l	#4,sp					; skip returning to Saw_Action to avoid rendering sprite
+	if FixBugs
+		; The above line will properly avoid drawing the sprite, but it will
+		; also prevent despawning the object, which can lead to memory leaks.
+		out_of_range.w	Saw_Delete,saw_origX(a0)	; has saw gone out of range? if yes, delete it
+	endif
 
 	.return:
 		rts						; return
@@ -192,6 +198,10 @@ Saw_Type4_SpeedingFromRight:
 
 	.hide:
 		addq.l	#4,sp					; skip returning to Saw_Action to avoid rendering sprite
+	if FixBugs
+		; See above.
+		out_of_range.w	Saw_Delete,saw_origX(a0)	; has saw gone out of range? if yes, delete it
+	endif
 
 	.return:
 		rts						; return
