@@ -507,9 +507,9 @@ BossStarLight_PipeMain:	; Routine 8
 
 BossSpikeball:
 		moveq	#0,d0
-		move.b	obRoutine(a0),d0
-		move.w	BossSpikeball_Index(pc,d0.w),d0
-		jsr	BossSpikeball_Index(pc,d0.w)
+		move.b	obRoutine(a0),d0			; copy object routine
+		move.w	BossSpikeball_Index(pc,d0.w),d0		; use the object routine index and BossSpikeball_Index to calculate our offset
+		jsr	BossSpikeball_Index(pc,d0.w)		; jump into the table and use our offset to pick a routine in the index to go to
 		out_of_range.w	BossStarLight_Delete,obBossX(a0),1 ; contains a (redundant) bmi check
 		jmp	(DisplaySprite).l
 ; ===========================================================================
@@ -523,63 +523,66 @@ BossSpikeball_Index:
 ; ===========================================================================
 
 BossSpikeball_Main:	; Routine 0
-		move.l	#Map_SSawBall,obMap(a0)
+		move.l	#Map_SSawBall,obMap(a0)			; load mappings and art
 		move.w	#ArtTile_Eggman_Spikeball,obGfx(a0)
-		move.b	#1,obFrame(a0)
-		ori.b	#4,obRender(a0)
-		move.b	#4,obPriority(a0)
-		move.b	#col_16x16|col_hurt,obColType(a0)
-		move.b	#24/2,obActWid(a0)
-		movea.l	objoff_3C(a0),a1
-		move.w	obX(a1),obBossX(a0)
-		move.w	obY(a1),objoff_34(a0)
-		bset	#0,obStatus(a0)
-		move.w	obX(a0),d0
-		cmp.w	obX(a1),d0
-		bgt.s	loc_18D68
-		bclr	#0,obStatus(a0)
-		move.b	#2,objoff_3A(a0)
+		move.b	#1,obFrame(a0)				; set frame
+		ori.b	#4,obRender(a0)				; keep all other bits, set render mode to playfield coordinate mode
+		move.b	#4,obPriority(a0)			; set render priority (on the lower side)
+		move.b	#col_16x16|col_hurt,obColType(a0)	; set collision type
+		move.b	#24/2,obActWid(a0)			; set radius of object in pixels (used for hiding sprites when off-screen)
+		movea.l	BossStarLight_GenericTimer(a0),a1	; copy offset address, a1 now contains the seesaw that this ball is tied to
+		move.w	obX(a1),obBossX(a0)			; copy seesaw X to ball's base X
+		move.w	obY(a1),BossStarLight_ParentObj(a0)	; store seesaw Y (repurposed offset)
+		bset	#0,obStatus(a0)				; flip ball on horizontal axis
+		move.w	obX(a0),d0				; copy ball's X
+		cmp.w	obX(a1),d0				; is the ball's X greater than the seesaw's X?
+		bgt.s	.skip					; if yes, branch
+		bclr	#0,obStatus(a0)				; no, so remove flip
+		move.b	#2,objoff_3A(a0)			; set XXXXX to 2
 
-loc_18D68:
-		addq.b	#2,obRoutine(a0)
+; loc_18D68:
+.skip:
+		addq.b	#2,obRoutine(a0)			; increment routine counter (now at the routine below)
 
 BossSpikeball_Fall:	; Routine 2
 		jsr	(ObjectFall).l
-		movea.l	objoff_3C(a0),a1
-		lea	(BossSpikeball_SeesawYOffset).l,a2
-		moveq	#0,d0
-		move.b	obFrame(a1),d0
-		move.w	obX(a0),d1
-		sub.w	obBossX(a0),d1
-		bcc.s	loc_18D8E
-		addq.w	#2,d0
+		movea.l	BossStarLight_GenericTimer(a0),a1	; copy offset address, a1 now contains the seesaw that this ball is tied to
+		lea	(BossSpikeball_SeesawYOffset).l,a2	; load table for calculating what part of seesaw is pointing up/down
+		moveq	#0,d0			
+		move.b	obFrame(a1),d0				; move current seesaw frame into d0		
+		move.w	obX(a0),d1				; move spikeball x position into d1
+		sub.w	obBossX(a0),d1				; subtract boss position from spikeball x, creating an offset
+		bcc.s	.calculateOffset			; if the ball is at or to the right of the target, branch
+		addq.w	#2,d0					; increment (use the left side offset for the table)
 
-loc_18D8E:
-		add.w	d0,d0
-		move.w	objoff_34(a0),d1
-		add.w	(a2,d0.w),d1
-		cmp.w	obY(a0),d1
-		bgt.s	locret_18DC4
-		movea.l	objoff_3C(a0),a1
-		moveq	#2,d1
-		btst	#0,obStatus(a0)
-		beq.s	loc_18DAE
-		moveq	#0,d1
+; loc_18D8E:
+.calculateOffset:
+		add.w	d0,d0					; add to create word-based index into the table
+		move.w	BossStarLight_ParentObj(a0),d1		; copy Y value originally stored at this offset
+		add.w	(a2,d0.w),d1				; calculate table offset using word-based index and store
+		cmp.w	obY(a0),d1				; has the spikeball reached the seesaw?
+		bgt.s	.exit					; if not, branch and come back later
+		movea.l	BossStarLight_GenericTimer(a0),a1	; copy offset address, a1 now contains the seesaw that this ball is tied to
+		moveq	#2,d1					
+		btst	#0,obStatus(a0)				; are we horizontally flipped (facing the right?)
+		beq.s	loc_18DAE				; if so, branch
+		moveq	#0,d1					; 
 
 loc_18DAE:
-		move.w	#$F0,obSubtype(a0)
-		move.b	#10,obDelayAni(a0)	; set frame duration to 10 frames
-		move.b	obDelayAni(a0),obTimeFrame(a0)
-		bra.w	loc_18FA2
+		move.w	#$F0,obSubtype(a0)			; set object subtype
+		move.b	#10,obDelayAni(a0)			; set frame duration to 10 frames
+		move.b	obDelayAni(a0),obTimeFrame(a0)		; copy 
+		bra.w	loc_18FA2				
 ; ===========================================================================
 
-locret_18DC4:
+; locret_18DC4:
+.exit:
 		rts
 ; ===========================================================================
 
 ; loc_18DC6:
 BossSpikeball_Bounce: ; Routine 4
-		movea.l	objoff_3C(a0),a1
+		movea.l	BossStarLight_GenericTimer(a0),a1
 		moveq	#0,d0
 		move.b	objoff_3A(a0),d0
 		sub.b	objoff_3A(a1),d0
@@ -627,7 +630,7 @@ loc_18E2A:
 
 loc_18E48:
 		add.w	d0,d0
-		move.w	objoff_34(a0),d1
+		move.w	BossStarLight_ParentObj(a0),d1
 		add.w	(a2,d0.w),d1
 		move.w	d1,obY(a0)
 		add.w	obBossX(a0),d2
@@ -737,7 +740,7 @@ loc_18F38:
 		tst.w	obVelY(a0)
 		bpl.s	loc_18F5C
 		jsr	(ObjectFall).l
-		move.w	objoff_34(a0),d0
+		move.w	BossStarLight_ParentObj(a0),d0
 		subi.w	#$2F,d0
 		cmp.w	obY(a0),d0
 		bgt.s	loc_18F58
@@ -749,7 +752,7 @@ loc_18F58:
 
 loc_18F5C:
 		jsr	(ObjectFall).l
-		movea.l	objoff_3C(a0),a1
+		movea.l	BossStarLight_GenericTimer(a0),a1
 		lea	(BossSpikeball_SeesawYOffset).l,a2
 		moveq	#0,d0
 		move.b	obFrame(a1),d0
@@ -760,11 +763,11 @@ loc_18F5C:
 
 loc_18F7E:
 		add.w	d0,d0
-		move.w	objoff_34(a0),d1
+		move.w	BossStarLight_ParentObj(a0),d1
 		add.w	(a2,d0.w),d1
 		cmp.w	obY(a0),d1
 		bgt.s	loc_18F58
-		movea.l	objoff_3C(a0),a1
+		movea.l	BossStarLight_GenericTimer(a0),a1
 		moveq	#2,d1
 		tst.w	obVelX(a0)
 		bmi.s	loc_18F9C
@@ -839,7 +842,7 @@ BossSpikeball_Explode:	; Routine 8
 ; ===========================================================================
 
 BossSpikeball_MakeFrag:
-		move.w	objoff_34(a0),obY(a0)
+		move.w	BossStarLight_ParentObj(a0),obY(a0)
 		moveq	#3,d1
 		lea	BossSpikeball_FragSpeed(pc),a2
 
@@ -875,7 +878,7 @@ BossSpikeball_FragSpeed:
 BossSpikeball_MoveFrag:	; Routine $A
 		jsr	(SpeedToPos).l
 		move.w	obX(a0),obBossX(a0)
-		move.w	obY(a0),objoff_34(a0)
+		move.w	obY(a0),BossStarLight_ParentObj(a0)
 		addi.w	#$18,obVelY(a0)
 		moveq	#4,d0
 		and.w	(v_vblank_word).w,d0
