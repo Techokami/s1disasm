@@ -697,7 +697,8 @@ BossSpikeball_HitBoss:	; Routine 6
 		adda.w	d1,a1					; add object size to level object space (increment index via word)
 		dbf	d2,.findBoss				; decrement based on amount of objects in level and loop
 
-		bra.s	.checkPhysics				; no boss found, branch
+		bra.s	BossSpikeball_CheckCollision.checkPhysics ; no boss found, branch
+
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Subroutine to check that the center of the ball is within Eggman's collision in order to trigger a hit.
@@ -768,7 +769,7 @@ BossSpikeball_CheckCollision:
 ; loc_18F38:
 .checkPhysics:
 		tst.w	obVelY(a0)				; is the ball currently falling?
-		bpl.s	BossSpikeball_Fall				; if yes, branch
+		bpl.s	BossSpikeball_FallingDown		; if yes, branch
 		jsr	(ObjectFall).l				
 		move.w	BossStarLight_ParentObj(a0),d0		; copy seesaw Y
 		subi.w	#$2F,d0					; subtract 47 pixels
@@ -781,7 +782,7 @@ BossSpikeball_Land:
 ; ===========================================================================
 
 ; loc_18F5C:
-BossSpikeball_Fall:
+BossSpikeball_FallingDown:
 		jsr	(ObjectFall).l
 		movea.l	BossStarLight_GenericTimer(a0),a1	; copy offset address, a1 now contains the seesaw that this ball is tied to
 		lea	(BossSpikeball_SeesawYOffset).l,a2	; load seesaw Y offset table
@@ -889,7 +890,7 @@ BossSpikeball_Loop:
 		move.b	#$A,obRoutine(a1)		; set routine to routine 10 (below)
 		move.l	#Map_BSBall,obMap(a1)		; set mappings
 		move.b	#3,obPriority(a1)		; set priority (to appear in front of background)
-		move.w	#ArtTile_Eggman_Spikeball,obGfx(a1)	; set art
+		move.w	#ArtTile_Eggman_Spikeball,obGfx(a1) ; set art
 		move.w	obX(a0),obX(a1)			; copy position of fragment to ball
 		move.w	obY(a0),obY(a1)
 		move.w	(a2)+,obVelX(a1)		; pull X and Y velocity from the table and move fragements
@@ -924,8 +925,7 @@ BossSpikeball_MoveFrag:	; Routine $A
 
 		tst.b	obRender(a0)
 	if FixBugs
-		; Avoid returning to BossSpikeball to prevent a
-		; display-and-delete bug.
+		; Avoid returning to BossSpikeball to prevent a display-and-delete bug.
 		bmi.s	.return
 		addq.l	#4,sp
 		bra.w	BossStarLight_Delete
