@@ -13,11 +13,11 @@ BGHZ_Index:	dc.w BGHZ_Main-BGHZ_Index
 		dc.w BGHZ_FaceMain-BGHZ_Index
 		dc.w BGHZ_FlameMain-BGHZ_Index
 
-BGHZ_ParentObj = objoff_34					; Pointer to main boss controller
-BGHZ_SineCounter = objoff_3F 					; sine counter for bobbing motion
-BGHZ_BossGenericTimer = objoff_3C 				; timer for how many frames to do an action, whether its wait for explosions, or to move in a direction
-GBall_AnchorPos = objoff_32					; offset used to calculate position of chain anchor on Eggman's ship
-GBall_PosX	= objoff_3A	
+BGHZ_ParentObj equ objoff_34					; Pointer to main boss controller
+BGHZ_SineCounter equ objoff_3F 					; sine counter for bobbing motion
+BGHZ_BossGenericTimer equ objoff_3C 				; timer for how many frames to do an action, whether its wait for explosions, or to move in a direction
+GBall_AnchorPos equ objoff_32					; offset used to calculate position of chain anchor on Eggman's ship
+GBall_PosX equ objoff_3A	
 
 BGHZ_ObjData:	
 		dc.b 2,	0					; routine counter, animation

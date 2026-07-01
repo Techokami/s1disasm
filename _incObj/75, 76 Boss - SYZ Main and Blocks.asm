@@ -15,12 +15,12 @@ BossSpringYard_Index:
 		dc.w BossSpringYard_FlameMain-BossSpringYard_Index
 		dc.w BossSpringYard_SpikeMain-BossSpringYard_Index
 
-BossSpringYard_ParentObj = objoff_34				; Pointer to main boss controller
-BossSpringYard_SineCounter = objoff_3F				; sine counter for bobbing motion
-BossSpringYard_GenericTimer = objoff_3C				; timer for how many frames to do an action, whether its wait for explosions, or to move in a direction
-BossSpringYard_PhaseTimer = objoff_3D				; lower byte of timer, used for shaking effect and also attack flag (memory optimization)
-BossSpringYard_ObjPointer = objoff_36				; pointer to memory address of spike object or block being grabbed. this is used as a general storage area for the boss controller object to send commands to, changing their behavior
-BossSpringYard_ChildCmd = objoff_29				; offset used to load 
+BossSpringYard_ParentObj equ objoff_34				; Pointer to main boss controller
+BossSpringYard_SineCounter equ objoff_3F				; sine counter for bobbing motion
+BossSpringYard_GenericTimer equ objoff_3C				; timer for how many frames to do an action, whether its wait for explosions, or to move in a direction
+BossSpringYard_PhaseTimer equ objoff_3D				; lower byte of timer, used for shaking effect and also attack flag (memory optimization)
+BossSpringYard_ObjPointer equ objoff_36				; pointer to memory address of spike object or block being grabbed. this is used as a general storage area for the boss controller object to send commands to, changing their behavior
+BossSpringYard_ChildCmd equ objoff_29				; offset used to load 
 
 BossSpringYard_ObjData:
 		dc.b 2,	0, 5					; routine number, animation, priority
