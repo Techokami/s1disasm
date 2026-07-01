@@ -15,9 +15,9 @@ BossMarble_Index:
 		dc.w BossMarble_FlameMain-BossMarble_Index
 		dc.w BossMarble_TubeMain-BossMarble_Index
 
-BossMarble_ParentObj = objoff_34 				; Pointer to main boss controller
-BossMarble_SineCounter = objoff_3F				; sine counter for bobbing motion
-BossMarble_GenericTimer	= objoff_3C				; ; timer for how many frames to do an action, whether its wait for explosions, or to move in a direction
+BossMarble_ParentObj equ objoff_34 				; Pointer to main boss controller
+BossMarble_SineCounter equ objoff_3F				; sine counter for bobbing motion
+BossMarble_GenericTimer	equ objoff_3C				; timer for how many frames to do an action, whether its wait for explosions, or to move in a direction
 
 BossMarble_ObjData:
 		dc.b 2,	0, 4					; routine number, animation, priority
