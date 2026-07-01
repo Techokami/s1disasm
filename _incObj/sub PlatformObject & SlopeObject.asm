@@ -125,6 +125,8 @@ Plat_Exit:
 ;		bsr.w	SlopeObject
 ; ---------------------------------------------------------------------------
 
+; See also: SlopeObject_AssumeStoodOn inside Object 1A - Collapsing GHZ Ledges
+
 SlopeObject:
 		lea	(v_player).w,a1
 		tst.w	obVelY(a1)				; is Sonic moving up/jumping?
@@ -138,7 +140,7 @@ SlopeObject:
 		cmp.w	d1,d0
 		bhs.s	Plat_Exit				; branch if Sonic is right of the platform
 
-		btst	#0,obRender(a0)
+		btst	#sprite_xflip_bit,obRender(a0)
 		beq.s	.noflip
 		not.w	d0
 		add.w	d1,d0					; reverse position if platform is xflipped

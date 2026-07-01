@@ -20,7 +20,7 @@ gring_parent:	equ objoff_3C	; parent giant ring object address used by flash obj
 GRing_Main:	; Routine 0
 		move.l	#Map_GRing,obMap(a0)			; set mappings
 		move.w	#ArtTile_Giant_Ring|Tile_Pal2,obGfx(a0)	; set art tile and palette line
-		ori.b	#4,obRender(a0)				; set to playfield positioned mode
+		ori.b	#sprite_cam_field,obRender(a0)		; set to playfield positioned mode
 		move.b	#128/2,obActWid(a0)			; set sprite display width
 
 		tst.b	obRender(a0)				; is giant ring on screen?
@@ -36,7 +36,7 @@ GRing_Okay:
 		addq.b	#2,obRoutine(a0)			; set to GRing_Animate
 		move.b	#2,obPriority(a0)			; set sprite priority
 		move.b	#col_16x32|col_item,obColType(a0)	; set col type (ReactToItem will advance obRoutine on collection)
-		move.w	#$C40,(v_gfxbigring).w			; trigger AniArt_GiantRing to load graphics ($C40 is the size of Art_BigRing)
+		move.w	#Art_BigRing_size,(v_gfxbigring).w	; trigger AniArt_GiantRing to load graphics (Art_BigRing_size = $C40)
 ; ---------------------------------------------------------------------------
 
 GRing_Animate:	; Routine 2
@@ -58,7 +58,7 @@ GRing_Collect:	; Routine 4
 		move.w	(v_player+obX).w,d0			; get Sonic's X-position
 		cmp.w	obX(a0),d0				; has Sonic entered the giant ring from the right?
 		blo.s	GRing_PlaySnd				; if not, branch
-		bset	#0,obRender(a1)				; set X-flip flag for flash object
+		bset	#sprite_xflip_bit,obRender(a1)		; set X-flip flag for flash object
 
 GRing_PlaySnd:
 		move.w	#sfx_GiantRing,d0			; set giant ring sound
@@ -90,7 +90,7 @@ Flash_Main:	; Routine 0
 		addq.b	#2,obRoutine(a0)			; set to Flash_ChkDel
 		move.l	#Map_Flash,obMap(a0)			; set mappings
 		move.w	#ArtTile_Giant_Ring_Flash|Tile_Pal2,obGfx(a0) ; set art tile and palette line
-		ori.b	#4,obRender(a0)				; set to playfield positioned mode
+		ori.b	#sprite_cam_field,obRender(a0)		; set to playfield positioned mode
 		move.b	#0,obPriority(a0)			; set to maximum sprite priority
 		move.b	#64/2,obActWid(a0)			; set sprite display width
 		move.b	#-1,obFrame(a0)				; set to frame -1 so first run of Flash_Collect will set it to 0
