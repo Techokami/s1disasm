@@ -921,7 +921,7 @@ BossSpikeball_MoveFrag:	; Routine $A
 		moveq	#4,d0				; set up to use the third bit
 		and.w	(v_vblank_word).w,d0		; AND with the global vblank frame counter to get the status of the 3rd bit AKA every 4 frames
 		lsr.w	#2,d0				; shift that bit all the way to the right
-		move.b	d0,obFrame(a0)			; set frame to value from above calculation, allowing graphics frame to alternae every 4 frames
+		move.b	d0,obFrame(a0)			; set frame to value from above calculation, allowing graphics frame to alternate every 4 frames
 
 		tst.b	obRender(a0)
 	if FixBugs
