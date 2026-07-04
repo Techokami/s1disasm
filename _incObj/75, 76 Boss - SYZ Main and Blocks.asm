@@ -23,10 +23,10 @@ BossSpringYard_ObjPointer equ objoff_36				; pointer to memory address of spike 
 BossSpringYard_ChildCmd equ objoff_29				; offset used to communicate commands to Eggman's objects. 0 = normal -1 = grabbed/disable collision $A = break block
 
 BossSpringYard_ObjData:
-		dc.b 2,	0, 5					; routine number, animation, priority
-		dc.b 4,	1, 5
-		dc.b 6,	7, 5
-		dc.b 8,	0, 5
+		dc.b 2,	0, 5					; routine number, animation, priority (ship)
+		dc.b 4,	1, 5					; face
+		dc.b 6,	7, 5					; flame
+		dc.b 8,	0, 5					; spike
 ; ===========================================================================
 
 BossSpringYard_Main:	; Routine 0
@@ -833,7 +833,7 @@ BossBlock_Break:
 
 BossBlock_LoopFrag:
 		jsr	(FindNextFreeObj).l
-		bne.s	.done					; if no free objects are found, skip ahead
+		bne.s	BossBlock_Done				; if no free objects are found, skip ahead
 
 BossBlock_MakeFrag:
 		lea	(a0),a2					; copy object
@@ -859,7 +859,7 @@ BossBlock_MakeFrag:
 		dbf	d1,BossBlock_LoopFrag 			; repeat sequence 3 more times
 
 ; loc_197D4:
-.done:
+BossBlock_Done:
 		move.w	#sfx_WallSmash,d0
 		jmp	(QueueSound2).l				; play smashing sound
 ; End of function BossBlock_Break
