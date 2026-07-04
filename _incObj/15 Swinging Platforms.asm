@@ -190,7 +190,7 @@ Swing_Move:
 		move.w	#$40*2,d1				; keep in same range if movement is reversed
 		btst	#0,obStatus(a0)				; is platform X-flipped?
 		beq.s	.swing					; if not, branch
-		neg.w	d0					; return movement direction
+		neg.w	d0					; reverse movement direction
 		add.w	d1,d0					; keep in the same general range
 	.swing:
 		bra.s	Swing_UpdateSwingPosition		; swing all objects
